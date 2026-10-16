@@ -1,0 +1,744 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071c17">
+  <title>Una aventura para Esme💎</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+    :root {
+      --bg: #071c17;
+      --green: #75e5ae;
+      --mint: #b4f7d2;
+      --white: #f4fff8;
+      --muted: #a4c4b4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 30%,
+          #15583b80, transparent 65%),
+        radial-gradient(ellipse at 10% 90%,
+          #103d3580, transparent 55%);
+      pointer-events: none;
+    }
+
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #b4ffd9;
+      animation: twinkle 3s infinite alternate;
+    }
+
+    @keyframes twinkle {
+      from { opacity: .15; transform: scale(.5); }
+      to { opacity: .9; transform: scale(1.5); }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px 18px;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 550px;
+      text-align: center;
+      animation: appear .65s ease both;
+    }
+
+    .screen.active { display: block; }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 11px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    h1, h2 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      line-height: 1.2;
+      margin: 0 0 20px;
+    }
+
+    h1 { font-size: clamp(38px, 9vw, 60px); }
+    h2 { font-size: clamp(30px, 7vw, 43px); }
+
+    .gradient-text {
+      background: linear-gradient(120deg,
+        #70e5a7, #e0ffe9, #52b98c);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.85;
+      font-size: 15px;
+    }
+
+    .hero-gem {
+      font-size: 100px;
+      display: block;
+      margin: 25px auto;
+      filter: drop-shadow(0 0 35px #38e99970);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-13px); }
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #9df5c5, #4ac78c);
+      color: #06271a;
+      border: 0;
+      border-radius: 50px;
+      padding: 16px 32px;
+      font: 700 14px 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 25px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 8px 30px #3ac98c30;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px #3ac98c55;
+    }
+
+    .btn:active { transform: scale(.96); }
+
+    .progress {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 25px 0;
+    }
+
+    .progress span {
+      width: 36px;
+      height: 5px;
+      border-radius: 10px;
+      background: #315346;
+      transition: background .3s;
+    }
+
+    .progress span.done { background: var(--green); }
+
+    .gem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 13px;
+      margin: 30px auto;
+      max-width: 390px;
+    }
+
+    .gem {
+      aspect-ratio: 1;
+      border: 1px solid #37664f;
+      border-radius: 20px;
+      background: linear-gradient(145deg,
+        #163f30, #0b2920);
+      color: white;
+      font-size: clamp(35px, 9vw, 55px);
+      cursor: pointer;
+      transition: .25s;
+    }
+
+    .gem:hover:not(:disabled) {
+      transform: translateY(-5px);
+      border-color: var(--green);
+      box-shadow: 0 0 25px #3edc9140;
+    }
+
+    .gem:disabled { cursor: default; }
+
+    .gem.wrong {
+      opacity: .3;
+      transform: scale(.88);
+    }
+
+    .gem.correct {
+      border-color: #8bffc0;
+      background: #205c3c;
+      box-shadow: 0 0 35px #4de99b60;
+      animation: pulse .6s ease;
+    }
+
+    @keyframes pulse {
+      50% { transform: scale(1.12); }
+    }
+
+    .hint {
+      min-height: 45px;
+      color: #c6e9d5;
+      font-size: 14px;
+    }
+
+    .reward-icon {
+      font-size: 75px;
+      margin: 20px 0;
+      animation: float 3s infinite;
+    }
+
+    .reward-card, .letter {
+      background: linear-gradient(145deg,
+        #174332dd, #0b291fef);
+      border: 1px solid #5baf8260;
+      border-radius: 25px;
+      padding: 32px 25px;
+      box-shadow: 0 20px 60px #0004;
+    }
+
+    .reward-card p {
+      color: #e0ffed;
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      line-height: 1.6;
+    }
+
+    .final-photo {
+      position: relative;
+      isolation: isolate;
+      width: min(100%, 470px);
+      aspect-ratio: 4 / 4.65;
+      margin: 30px auto 38px;
+      overflow: hidden;
+      border: 1px solid #8bf0b56b;
+      border-radius: 28px;
+      background: #0b291f;
+      box-shadow:
+        0 28px 70px #0008,
+        0 0 45px #56d59a21;
+      opacity: 0;
+      transform: translateY(24px) scale(.96);
+      animation: photoReveal 1.25s .2s cubic-bezier(.2, .75, .25, 1) forwards;
+    }
+
+    .final-photo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      animation: photoZoom 18s 1.4s ease-in-out infinite alternate;
+    }
+
+    .final-photo::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      background:
+        linear-gradient(to bottom,
+          #06211814 25%,
+          #06211852 62%,
+          #041c16eb 100%),
+        linear-gradient(135deg, #0c4b322e, transparent 55%);
+      pointer-events: none;
+    }
+
+    .final-photo::after {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 0 55px #02130eb3;
+      pointer-events: none;
+    }
+
+    .photo-message {
+      position: absolute;
+      z-index: 2;
+      right: 22px;
+      bottom: 25px;
+      left: 22px;
+      margin: 0;
+      color: #f1fff7;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(21px, 5.5vw, 28px);
+      font-weight: 600;
+      line-height: 1.35;
+      text-wrap: balance;
+      text-shadow: 0 2px 18px #000;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: messageReveal .9s 1.1s ease forwards;
+    }
+
+    .photo-sparkle {
+      position: absolute;
+      z-index: 3;
+      color: #d7ffe8;
+      font-size: 17px;
+      line-height: 1;
+      filter: drop-shadow(0 0 8px #8dffc2);
+      animation: photoSparkle 2.8s ease-in-out infinite;
+    }
+
+    .photo-sparkle:nth-of-type(1) {
+      top: 9%;
+      left: 8%;
+      animation-delay: .2s;
+    }
+
+    .photo-sparkle:nth-of-type(2) {
+      top: 18%;
+      right: 9%;
+      font-size: 12px;
+      animation-delay: 1.1s;
+    }
+
+    .photo-sparkle:nth-of-type(3) {
+      top: 43%;
+      left: 6%;
+      font-size: 11px;
+      animation-delay: 1.8s;
+    }
+
+    .photo-sparkle:nth-of-type(4) {
+      right: 7%;
+      bottom: 27%;
+      font-size: 15px;
+      animation-delay: .7s;
+    }
+
+    @keyframes photoReveal {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes messageReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes photoZoom {
+      from { transform: scale(1.01); }
+      to { transform: scale(1.075); }
+    }
+
+    @keyframes photoSparkle {
+      0%, 100% { opacity: .2; transform: scale(.65) rotate(0); }
+      50% { opacity: 1; transform: scale(1.25) rotate(20deg); }
+    }
+
+    .letter {
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .letter::before {
+      content: "✦";
+      position: absolute;
+      right: 22px;
+      top: 15px;
+      font-size: 45px;
+      color: #82eeb34d;
+    }
+
+    .letter h2 { color: var(--mint); }
+
+    .letter p {
+      color: #d6eee0;
+      font-size: 15px;
+      line-height: 2;
+    }
+
+    .signature {
+      text-align: right;
+      color: var(--green) !important;
+      font-family: 'Playfair Display', serif;
+      font-size: 20px !important;
+      margin-top: 25px;
+    }
+
+    .small-note {
+      font-size: 12px;
+      opacity: .7;
+      margin-top: 20px;
+    }
+
+    .heart {
+      position: fixed;
+      z-index: 10;
+      pointer-events: none;
+      animation: fly 3s ease-out forwards;
+      font-size: 23px;
+    }
+
+    @keyframes fly {
+      from {
+        transform: translateY(0) rotate(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-110vh) rotate(40deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .reward-card, .letter { padding: 25px 20px; }
+      .gem-grid { gap: 10px; }
+      .gem { border-radius: 15px; }
+      .final-photo {
+        width: 100%;
+        margin: 24px auto 30px;
+        border-radius: 22px;
+      }
+      .photo-message {
+        right: 18px;
+        bottom: 20px;
+        left: 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="stars" id="stars"></div>
+
+  <main>
+    <!-- BIENVENIDA -->
+    <section class="screen active" id="welcome">
+      <div class="eyebrow">Una pequeña aventura para ti</div>
+      <span class="hero-gem">💎</span>
+
+      <h1>
+        En busca de<br>
+        <span class="gradient-text">Esmeralda</span>
+      </h1>
+
+      <p>
+        Dicen que existen tesoros muy difíciles de encontrar...
+        <br><br>
+        Pero hoy hay uno que lleva tu nombre.
+        <br>
+        ¿Te animas a descubrirlo? ✨
+      </p>
+
+      <button class="btn" onclick="startGame()">
+        Comenzar aventura ✦
+      </button>
+      <div class="small-note">
+        Hecho especialmente para Queen Esme💚
+      </div>
+    </section>
+
+    <!-- JUEGO -->
+    <section class="screen" id="game">
+      <div class="eyebrow" id="levelLabel">Nivel 1 de 3</div>
+
+      <h2>Encuentra la <span class="gradient-text">esmeralda</span></h2>
+
+      <p id="levelDescription">
+        Entre todas estas gemas hay una especial.
+        ¿Podrás encontrarla?
+      </p>
+
+      <div class="progress" id="progress">
+        <span></span><span></span><span></span>
+      </div>
+
+      <div class="gem-grid" id="gemGrid"></div>
+
+      <div class="hint" id="hint">
+        Pista: busca la que brilla como la naturaleza 🌿
+      </div>
+    </section>
+
+    <!-- RECOMPENSA -->
+    <section class="screen" id="reward">
+      <div class="eyebrow">¡Tesoro encontrado!</div>
+      <div class="reward-icon">✨💎✨</div>
+
+      <h2 class="gradient-text">¡Lo lograste!</h2>
+
+      <div class="reward-card">
+        <p id="rewardText"></p>
+      </div>
+
+      <button class="btn" id="nextBtn" onclick="nextLevel()">
+        Continuar ✦
+      </button>
+    </section>
+
+    <!-- CARTA FINAL -->
+    <section class="screen" id="final">
+      <div class="eyebrow">Un último tesoro por descubrir</div>
+
+      <span class="hero-gem">💚</span>
+      <h2>Este era el verdadero tesoro...</h2>
+
+      <div class="final-photo">
+        <img
+          src="./images/emse.png"
+          alt="Esmeralda contemplando las luces de la ciudad por la noche"
+          decoding="async"
+        >
+        <span class="photo-sparkle" aria-hidden="true">✦</span>
+        <span class="photo-sparkle" aria-hidden="true">✧</span>
+        <span class="photo-sparkle" aria-hidden="true">✦</span>
+        <span class="photo-sparkle" aria-hidden="true">✧</span>
+        <p class="photo-message">
+          El verdadero tesoro siempre tuvo tu nombre, Esmeralda 💚
+        </p>
+      </div>
+
+      <div class="letter">
+        <div class="eyebrow">Para alguien especial</div>
+        <h2>¿Sabes algo?</h2>
+
+        <p>
+          Podría decir que hice este pequeño juego
+          para que encontraras una esmeralda...
+        </p>
+
+        <p>
+          Pero la verdad es que solo buscaba
+          una forma diferente de sacarte una sonrisa.
+        </p>
+
+        <p>
+          Me gusta la casualidad de haberte conocido,
+          y aunque todavía nos quedan muchas cosas
+          por descubrir, quería regalarte
+          un momentito bonito.
+        </p>
+
+        <p>
+          Dicen que las esmeraldas son difíciles
+          de encontrar, pero creo que yo ya
+          tuve un poquito de suerte. 💚
+        </p>
+
+        <p class="signature">
+          Con cariño,<br>
+          alguien que disfruta conocerte ✨
+        </p>
+      </div>
+
+      <button class="btn" onclick="celebrate()">
+        Un poquito más de magia ✨
+      </button>
+
+      <p class="small-note">
+        Fin de la aventura... ¿o apenas comienza? 👀
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const screens = document.querySelectorAll(".screen");
+    const grid = document.getElementById("gemGrid");
+    const hint = document.getElementById("hint");
+
+    let level = 0;
+    let found = false;
+
+    const levels = [
+      {
+        description: "Primera misión: encuentra la gema verde.",
+        hint: "Pista: su color recuerda a un bosque 🌿",
+        gems: ["💜", "💙", "💎", "💚", "💛", "❤️"],
+        answer: "💚",
+        reward: "Primera pista: hay personas que, sin hacer demasiado, consiguen alegrarte el día. ✨"
+      },
+      {
+        description: "¡Muy bien! Pero el tesoro se ha escondido otra vez.",
+        hint: "Pista: el corazón verde guarda el secreto 💚",
+        gems: ["🧡", "💛", "💜", "💙", "❤️", "💚"],
+        answer: "💚",
+        reward: "Segunda pista: algunas coincidencias terminan convirtiéndose en nuestras partes favoritas del día. 🌷"
+      },
+      {
+        description: "Última misión. Un pequeño secreto te espera.",
+        hint: "Pista: la respuesta lleva tu color favorito... o eso espero 👀",
+        gems: ["💎", "❤️", "💚", "💜", "🧡", "💙"],
+        answer: "💚",
+        reward: "Última pista: este juego nunca se trató realmente de encontrar una piedra preciosa... 💌"
+      }
+    ];
+
+    function showScreen(id) {
+      screens.forEach(screen => {
+        screen.classList.toggle("active", screen.id === id);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function startGame() {
+      level = 0;
+      loadLevel();
+    }
+
+    function loadLevel() {
+      found = false;
+      const data = levels[level];
+
+      document.getElementById("levelLabel").textContent =
+        `Nivel ${level + 1} de ${levels.length}`;
+
+      document.getElementById("levelDescription").textContent =
+        data.description;
+
+      hint.textContent = data.hint;
+      grid.innerHTML = "";
+
+      document.querySelectorAll("#progress span")
+        .forEach((bar, index) => {
+          bar.classList.toggle("done", index <= level);
+        });
+
+      // Mezclar las gemas en cada partida
+      const shuffled = [...data.gems].sort(() => Math.random() - 0.5);
+
+      shuffled.forEach(gem => {
+        const button = document.createElement("button");
+        button.className = "gem";
+        button.textContent = gem;
+        button.setAttribute("aria-label", `Gema ${gem}`);
+
+        button.addEventListener("click", () => {
+          checkGem(button, gem, data.answer);
+        });
+
+        grid.appendChild(button);
+      });
+
+      showScreen("game");
+    }
+
+    function checkGem(button, gem, answer) {
+      if (found || button.disabled) return;
+
+      if (gem === answer) {
+        found = true;
+        button.classList.add("correct");
+        hint.textContent = "¡Encontraste la esmeralda! 💚";
+
+        document.querySelectorAll(".gem").forEach(item => {
+          item.disabled = true;
+        });
+
+        setTimeout(() => {
+          document.getElementById("rewardText").textContent =
+            levels[level].reward;
+
+          document.getElementById("nextBtn").textContent =
+            level === levels.length - 1
+              ? "Descubrir el tesoro final 💌"
+              : "Siguiente misión ✦";
+
+          showScreen("reward");
+          createHearts(12);
+        }, 850);
+
+      } else {
+        button.classList.add("wrong");
+        button.disabled = true;
+        hint.textContent = "Esa no era... ¡pero vas muy bien! ✨";
+      }
+    }
+
+    function nextLevel() {
+      level++;
+
+      if (level >= levels.length) {
+        showScreen("final");
+        createHearts(35);
+      } else {
+        loadLevel();
+      }
+    }
+
+    function createHearts(amount) {
+      const symbols = ["💚", "✨", "💎", "🌿"];
+
+      for (let i = 0; i < amount; i++) {
+        const heart = document.createElement("span");
+        heart.className = "heart";
+        heart.textContent =
+          symbols[Math.floor(Math.random() * symbols.length)];
+
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.bottom = "-35px";
+        heart.style.animationDelay = Math.random() * 1.5 + "s";
+        heart.style.fontSize = (15 + Math.random() * 18) + "px";
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4700);
+      }
+    }
+
+    function celebrate() {
+      createHearts(45);
+    }
+
+    // Crear estrellitas del fondo
+    const starsContainer = document.getElementById("stars");
+
+    for (let i = 0; i < 65; i++) {
+      const star = document.createElement("span");
+      star.className = "star";
+      star.style.left = Math.random() * 100 + "%";
+      star.style.top = Math.random() * 100 + "%";
+      star.style.animationDelay = Math.random() * 4 + "s";
+      star.style.animationDuration = (2 + Math.random() * 3) + "s";
+      starsContainer.appendChild(star);
+    }
+  </script>
+</body>
+</html>
